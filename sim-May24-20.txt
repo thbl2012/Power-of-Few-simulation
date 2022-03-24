@@ -1,0 +1,22 @@
+Proceeding to run n_trials = 10000 trials on random graph G(10000, 0.5).
+Advantage c = 1. Starting with 5001 Reds and 4999 Blues.
+
+Completed: 10000/10000 trials (100%). R: 2, B: 550, I: 0, F: 9448
+==================== RESULTS =====================
+Winner           Last day     Count      Frequency
+---------------------------------------------
+Blue              3            491         0.05
+Blue              4            59          0.01
+Fail              0            9448        0.94
+Red               4            1           0.00
+Red               5            1           0.00
+
+============== SUMMARY ==================
+Winner           Count     Frequency
+Red               2           0.00
+Blue              550         0.06
+Inconclusive      0           0.00
+Fail              9448        0.94
+Running time: 40052.015394449234 seconds
+
+Process finished with exit code 0

@@ -1,0 +1,180 @@
+\documentclass[12]{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage[left=1in, right=1in, top=1in, bottom=1in]{geometry}
+\usepackage{setspace}
+\usepackage{graphicx}
+
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\C}{\mathbb{C}}
+\newcommand{\N}{\mathbb{N}}
+
+\newtheorem{conjecture}{Conjecture}
+\theoremstyle{definition}
+\newtheorem{problem}{Problem}
+
+\onehalfspacing
+\parindent = 0pt
+
+
+\begin{document}
+
+\section{Experiment description}
+
+I ran the simulation on $G(n, 1/2)$ for $n\in \{3000,10000\}$.
+
+For $n = 3000$, I ran simulations for $c = 1, 2, 3, 4, 5$, with $50000$ trials each.
+
+For $n = 10000$, I ran one simulation for $c = 1$, with $10000$ trials.
+
+
+
+\section{Summary}
+
+Based on the simulation result, we can hypothesize the following:
+
+\begin{conjecture}[Confidence: high]  \label{conj:day1}
+The number of Blues in Day 1 approximately follows a Gaussian distribution with mean $n/2 - A(p)c\sqrt{n}$ and variance $B(p)^2n$, with $A(.5) \approx .8$, $B(.5) \approx .5$.
+\end{conjecture}
+
+\begin{conjecture}[Confidence: low] \label{conj:day2}
+The number of Blues in Day 2 follows a heavily sloped distribution, that is approximately exponential with mean $n/6$ for $c = 1$ and $p = .5$.
+\end{conjecture}
+
+\begin{conjecture}[Confidence: high] \label{conj:blue-win-day1-adv}
+Let $\Lambda_1 = \{Blue\ wins\}$ and $\Lambda_2 = \{|B_1| > n/2 \}$. Then $\Pr(\Lambda_1\mid \Lambda_2)$ and $\Pr(\Lambda_2\mid \Lambda_1)$ are both $1 - \text{o}(1)$.
+\end{conjecture}
+
+\textbf{Remark.} If Conjectures \ref{conj:day1} and \ref{conj:blue-win-day1-adv} are true, $\Pr(\Lambda_1) = \text{O}(\exp(-D(p)c^2))$ for some $D(p)$.
+
+\section{Detailed Results}
+
+\newcommand{\plotvoting}[3]{
+\begin{tabular}{cc}
+Distribution & Log-distribution \\[-0.4em]
+\includegraphics*[scale=0.5, trim={2em, 2em, 4em, 3.9em}, clip]
+{#1_half_#2_day#3.png}
+& 
+\includegraphics*[scale=0.5, trim={3em, 2em, 4em, 3.9em}, clip]
+{#1_half_#2_day#3_log.png}
+\end{tabular}
+}
+
+\subsection{Number of Blues in Day 1}
+
+Below are the distribution graphs for $n = 3000, c = 1$. Note that the graph on the right is the logarithm of the densities of the one on the left.
+
+\bigskip
+
+\plotvoting{3000}{1}{1}
+
+\bigskip
+
+The distribution graphs for $n = 10000, c = 1$:
+
+\smallskip
+
+\plotvoting{10000}{1}{1}
+
+\bigskip
+
+The distributions of $|B_1|$ for $c = 2, 3, 4, 5$ follow the same shape. 
+In fact, I plotted the centered (subtracted by their respective means) distributions for $c = 1, 2, 3, 4, 5$, $n = 3000$, and compared them with the Gaussian distribution $N(0, .5\sqrt{n})$ and got the graph below.
+
+\[
+\includegraphics*[scale=0.5, trim={2em, 2em, 4em, 3.9em}, clip]
+{3000_half_all_day1.png}
+\]
+
+Now the means of these distributions can be written in the form $n/2 - d\sqrt{n}$, for some $d$ mostly dependent on $c$. To find $d$ empirically, we can take $\widetilde{d} = (n/2 - \overline{|B_1|}) / \sqrt{n}$, where $\overline{|B_1|}$ is the sample mean of $|B_1|$ in the distribution.
+For $n = 3000$, we have $\widetilde{d} = 0.7973$, and for $n = 10000$, $\widetilde{d} = 0.7955$. This suggests $d$ depends solely of $c$ and $p$.
+
+When $p = .5$, as in all our simulations, the following plots $c$ against $\widetilde{d}$.
+
+\[
+\includegraphics*[scale=0.5, trim={0em, 0em, 4em, 3.9em}, clip]
+{3000_half_all_day1_d.png}
+\]
+
+This indicates a strong linear relationship, $d \approx .8c$. Therefore, we hypothesize that the distribution of the number of Blues after Day 1 can be very well approximated by a Gaussian distribution, with means $n/2 - A(p)c\sqrt{n}$, and variance $B(p)\sqrt{n}$, with $A(.5) \approx .8$ and $B(.5) \approx .5$.
+
+\subsection{Number of Blues in Day 2}
+
+Intriguingly, the distribution for $|B_2|$ follows a heavily sloped shape. For $n = 3000$ and $c = 1$:
+
+\bigskip
+
+\plotvoting{3000}{1}{2}
+
+\bigskip
+
+The means and standard deviation are close to $500$, which is $n/6$. This, combined with the log-graph, suggests that $|B_2|$ approximately follows an exponential distribution with mean $n/6$ (or some constant near $6$).
+
+For $n = 10000$ and $c = 1$:
+
+\bigskip
+
+\plotvoting{10000}{1}{2}
+
+\bigskip
+
+Again, the means and standard deviation are close to $1660$, which is very near $n/6$. Thus the observation is consistent with the hypothesis above.
+
+However, the distribution seems no longer approximately exponential for $c > 1$. These are the graphs for $c = 2, 3, 4$ and $n = 3000$:
+
+\newcommand{\plotdist}[3]{
+\includegraphics*[scale=0.15, trim={2em, 2em, 4em, 2em}, clip]
+{#1_half_#2_day#3.png}}
+
+\newcommand{\plotlogdist}[3]{
+\includegraphics*[scale=0.15, trim={2em, 2em, 4em, 2em}, clip]
+{#1_half_#2_day#3_log.png}}
+
+\begin{center}
+\begin{tabular}{c|cccc}
+$c$ & 1 & 2 & 3 & 4 \\
+Distribution & \plotdist{3000}{1}{2} & \plotdist{3000}{2}{2} & \plotdist{3000}{3}{2} & \plotdist{3000}{4}{2} \\
+Log-distribution & \plotlogdist{3000}{1}{2} & \plotlogdist{3000}{2}{2} & \plotlogdist{3000}{3}{2} & \plotlogdist{3000}{4}{2}
+\end{tabular}
+\end{center}
+
+\bigskip
+
+As $c$ grows, $|B_2|$ becomes increasingly concentrated near $0$, at a rate even higher than exponential. I hypothesize from the shapes of the log-distribution graphs that the density can be of size $\Omega(\exp(-\lambda x^c))$, but with low confidence.
+
+\subsection{Blues in Day 3 and onwards}
+
+In overwhelmingly most cases, the result in Day 2 already indicate the winner. At such, the distributions from day 3 onwards are heavily bimodal, with two peaks near 0 and $n$. Below is an example for $n = 10000$ and $c = 1$.
+
+\bigskip
+
+\plotvoting{10000}{1}{3}
+
+\subsection{Blues wins given Day 1 advantage}
+
+Another interesting quantity is the probability that Blue wins if they obtain an advantage after Day 1. Simulation results confirms this, with about $.99$ probability that Blue wins given Day 1 advantage, both for $n = 3000$ and $n = 10000$.
+
+Conversely, the probability that Blue has had an advantage after Day 1 given that they win in the end is above $.9$. Below is the distribution for $|B_1|$ when Blue win, for $n = 3000$ and $c = 1$.
+
+\smallskip
+
+\plotvoting{3000}{1}{1_blue}
+
+\bigskip
+
+This shows that in most cases, when Blue achieve an advantage in Day 1, this advantage is mild, but it still allows Blue to win eventually.
+
+%\subsection{Probability that Blue wins}
+%
+%Regarding the conjecture that the win probability for Blue is proportional to $c^{-2}$, I have not found enough evidence to support or deny it. For $c \ge 3$, there is no instance where Blue wins even in 50000 trials.
+%
+%The data I got for $c = 1$ and $2$ shows that the this probability is .054 for $c = 1$ and .0007 for $c = 2$, a much sharper decline that expected if they were proportional to $c^{-2}$.
+%However, the conjecture may be true, but only for $c$ large enough. The problem again comes down to the number of trials needed to get this tiny probability for $c \ge 3$.
+
+%The following conjecture needs more data to either support or deny: $\Pr(\Lambda_1) \propto \exp(-c)$, given constant $p$.
+
+\end{document}
