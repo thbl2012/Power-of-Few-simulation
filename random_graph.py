@@ -32,8 +32,10 @@ class Graph:
     self.colors = (np.sum(self.edges * tmp, axis=1) > 0) * 2 - 1
 
   # Returns number of Red and Blue vertices respectively
-  def count(self):
-    difference = self.colors.sum()
+  def count(self, coloring=None):
+    if coloring is None:
+      coloring = self.colors
+    difference = coloring.sum()
     no_of_reds = (self.size + difference) // 2
     no_of_blues = (self.size - difference) // 2
     return no_of_reds, no_of_blues
