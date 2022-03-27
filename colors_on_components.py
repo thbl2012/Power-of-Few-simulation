@@ -16,7 +16,7 @@ status_to_text = {
   CYCLE_ONE: 'Cycle one', CYCLE_TWO: 'Cycle_two', INCONCLUSIVE: 'Inconclusive'
 }
 info_to_index = {
-  '|V|': 0, '|E|': 1, 'r (0)': 2, 'b(0)': 3, 'stt': 4,
+  '|V|': 0, '|E|': 1, 'r(0)': 2, 'b(0)': 3, 'stt': 4,
   'r(t-1)': 5, 'b(t-1)': 6, 'r(t)': 7, 'b(t)': 8,
   '  t': 9, 'r->b': 10, 'b->r': 11, 'r(t-1)_deg': 12,
   'b(t-1)_deg': 13, 'r(t)_deg': 14, 'b(t)_deg': 15
@@ -82,31 +82,41 @@ def trial_on_component(g_k):
   r_prev, b_prev = g_k.count(prev_colors)
   r, b = g_k.count()
   # The mean has to be -1 then /2 because of the way edges are stored
-  avg_r_deg = np.mean(np.sum(g_k.edges[g_k.colors == COLOR_RED], axis=1) - 1) / 2
-  avg_b_deg = np.mean(np.sum(g_k.edges[g_k.colors == COLOR_BLUE], axis=1) - 1) / 2
-  avg_r_prev_deg = np.mean(np.sum(g_k.edges[prev_colors == COLOR_RED], axis=1) - 1) / 2
-  avg_b_prev_deg = np.mean(np.sum(g_k.edges[prev_colors == COLOR_BLUE], axis=1) - 1) / 2
+  avg_r_deg = round(np.mean(np.sum(g_k.edges[g_k.colors == COLOR_RED], axis=1) - 1) / 2, 2)
+  avg_b_deg = round(np.mean(np.sum(g_k.edges[g_k.colors == COLOR_BLUE], axis=1) - 1) / 2, 2)
+  avg_r_prev_deg = round(np.mean(np.sum(g_k.edges[prev_colors == COLOR_RED], axis=1) - 1) / 2, 2)
+  avg_b_prev_deg = round(np.mean(np.sum(g_k.edges[prev_colors == COLOR_BLUE], axis=1) - 1) / 2, 2)
   return (status, r_prev, b_prev, r, b, day, r_to_b, b_to_r,
           avg_r_prev_deg, avg_b_prev_deg, avg_r_deg, avg_b_deg)
 
 
-def main_single(n=10000, d=1, c=0):
+def main_single(n=10000, d=1, c=0, v_threshold=0):
   warnings.filterwarnings('ignore')
-  print(*info_to_index.keys(), sep='   ')
   component_infos = trial(n, d, c)
+  component_infos = component_infos[component_infos[:, info_to_index['|V|']] > v_threshold]
   component_infos = component_infos[(-component_infos[:, info_to_index['|V|']]).argsort()]
+  # Get proper width for each column
+  col_width = {}
+  for info in info_to_index.keys():
+    col_width[info] = max(len(info), len(str(component_infos[0, info_to_index[info]])))
+  # Print headline string
+  headline = ''
+  for info in info_to_index.keys():
+    headline += '{0:>{1}}   '.format(info, col_width[info])
+  print(headline)
+  # Print each result row
   for k in range(component_infos.shape[0]):
     result = ''
     for info in info_to_index.keys():
       content = component_infos[k, info_to_index[info]]
       if content.is_integer():
         content = int(content)
-      else:
-        content = round(content, 2)
-      result += '{0:>{1}}   '.format(content, len(info))
+      # else:
+      #   content = round(content, 2)
+      result += '{0:>{1}}   '.format(content, col_width[info])
     print(result)
 
 
 if __name__ == '__main__':
-  main_single(n=10000, d=1, c=0)
+  main_single(n=10000, d=10, c=0, v_threshold=5)
 
