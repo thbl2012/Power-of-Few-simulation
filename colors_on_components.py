@@ -79,8 +79,8 @@ def trial_on_component(g_k):
   if status is None:
     status = INCONCLUSIVE
   # Common calculations
-  r_prev, b_prev = g_k.count(prev_colors)
-  r, b = g_k.count()
+  r_prev, b_prev = g_k.color_count(prev_colors)
+  r, b = g_k.color_count()
   # The mean has to be -1 then /2 because of the way edges are stored
   avg_r_deg = round(np.mean(np.sum(g_k.edges[g_k.colors == COLOR_RED], axis=1) - 1) / 2, 2)
   avg_b_deg = round(np.mean(np.sum(g_k.edges[g_k.colors == COLOR_BLUE], axis=1) - 1) / 2, 2)
@@ -118,5 +118,5 @@ def main_single(n=10000, d=1, c=0, v_threshold=0):
 
 
 if __name__ == '__main__':
-  main_single(n=10000, d=10, c=0, v_threshold=5)
+  main_single(n=10000, d=0.9, c=0, v_threshold=5)
 

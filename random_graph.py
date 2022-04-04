@@ -6,11 +6,23 @@ MAX_DAYS = 6
 SAVE_PERIOD = 1000
 
 
+def color_count(coloring):
+    size = coloring.shape[0]
+    difference = coloring.sum()
+    no_of_reds = (size + difference) // 2
+    no_of_blues = (size - difference) // 2
+    return no_of_reds, no_of_blues
+
+
 class Graph:
   def __init__(self, size):
     self.size = size
     self.colors = np.empty(size, dtype=np.int)
     self.edges = None
+
+  def set_edge(self, i, j, e):
+    self.edges[i, j] = e
+    self.edges[j, i] = e
 
   # Sets first n/2 + c vertices to Red (1) and the rest to Blue (-1)
   def set_color(self, c, coloring=None):
