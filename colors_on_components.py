@@ -1,7 +1,7 @@
 import numpy as np
-import math, sys, time, os, glob
-from datetime import timedelta
-from collections import Counter
+# import math, sys, time, os, glob
+# from datetime import timedelta
+# from collections import Counter
 import warnings
 from scipy.sparse.csgraph import connected_components
 from random_graph import RandomGraph
@@ -79,8 +79,8 @@ def trial_on_component(g_k):
   if status is None:
     status = INCONCLUSIVE
   # Common calculations
-  r_prev, b_prev = g_k.color_count(prev_colors)
-  r, b = g_k.color_count()
+  r_prev, b_prev = g_k.count(prev_colors)
+  r, b = g_k.count()
   # The mean has to be -1 then /2 because of the way edges are stored
   avg_r_deg = round(np.mean(np.sum(g_k.edges[g_k.colors == COLOR_RED], axis=1) - 1) / 2, 2)
   avg_b_deg = round(np.mean(np.sum(g_k.edges[g_k.colors == COLOR_BLUE], axis=1) - 1) / 2, 2)
@@ -90,9 +90,28 @@ def trial_on_component(g_k):
           avg_r_prev_deg, avg_b_prev_deg, avg_r_deg, avg_b_deg)
 
 
-def main_single(n=10000, d=1, c=0, v_threshold=0):
+def main_single(n=10000, d=1, delta=0, v_threshold=0):
+  """
+  Run a single trial and print out the information on each connected component
+  :param n: total number of vertices
+  :param d: expected degree (= pn)
+  :param delta: initial gap (= |R_0| - |B_0|)
+  :param v_threshold: minimum size required for a component to be displayed in result.
+  E.g. if v_threshold = 5, only information on components of size at least 6 will be displayed.
+  :return the following infos are printed for each component:
+  |V|: number of vertices.
+  |E|: number of edges.
+  r(0), b(0): number of reds and blues in the beginning in the component.
+  stt: periodicity of final state. 1 = stable state. 2 = cycle of 2 states.
+  t: first day to enter final state.
+  r(t-1), b(t-1): number of reds and blues on day t-1.
+  r(t), b(t): number of reds and blues on day t.
+  r->b, b->r: number of vertices being red on day t-1 but blue on day t and vice versa.
+  r(t-1)_deg, b(t-1)_deg: average degree of reds and blues on day t-1.
+  r(t)_deg, b(t)_deg: average degree of reds and blues on day t.
+  """
   warnings.filterwarnings('ignore')
-  component_infos = trial(n, d, c)
+  component_infos = trial(n, d, delta)
   component_infos = component_infos[component_infos[:, info_to_index['|V|']] > v_threshold]
   component_infos = component_infos[(-component_infos[:, info_to_index['|V|']]).argsort()]
   # Get proper width for each column
@@ -118,5 +137,5 @@ def main_single(n=10000, d=1, c=0, v_threshold=0):
 
 
 if __name__ == '__main__':
-  main_single(n=10000, d=0.9, c=0, v_threshold=5)
+  main_single(n=1000, d=0.9, delta=0, v_threshold=5)
 

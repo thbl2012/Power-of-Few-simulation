@@ -1,6 +1,6 @@
 import numpy as np, os, glob
 from matplotlib import pyplot as plt
-from first_day import DATADIR, MAX_DAYS
+from blues_by_day import DATADIR, MAX_DAYS
 
 
 def histogram(data, title='', bin_length=1):

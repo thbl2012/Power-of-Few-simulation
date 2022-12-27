@@ -25,8 +25,8 @@ class Graph:
     self.edges[j, i] = e
 
   # Sets first n/2 + c vertices to Red (1) and the rest to Blue (-1)
-  def set_color(self, c, coloring=None):
-    pivot = math.ceil(self.size / 2 + c)
+  def set_color(self, delta, coloring=None):
+    pivot = math.ceil(self.size / 2 + delta)
     if coloring is None:
       self.colors[:pivot] = 1
       self.colors[pivot:] = -1

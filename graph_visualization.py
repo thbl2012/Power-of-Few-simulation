@@ -53,6 +53,34 @@ class Index:
     print('Day {}. Red: {}, Blue: {}'.format(self.ind, *color_count(self.colors[self.ind])))
 
 
+def check_tree(n=10, root=0, delta=0):
+  g = RandomTree(size=n)
+  g.generate()
+  g.set_color(delta=delta)
+  edges = np.floor(g.edges / 2).astype(int)
+  widths = np.zeros(n, dtype=int)
+  get_width_at_root(edges, root, widths)
+  count, nodes_x, nodes_y, edges_x, edges_y = arrange_tree(
+    edges, widths, root, 0, edge_length=10)
+  draw_graph(count, nodes_x, nodes_y, edges_x, edges_y, g.colors,
+             edge_width=2, name_ver_pos=0, name_hor_pos=0,
+             node_radius=20, fontsize=12)
+  plt.show()
+
+
+def check_circ_graph(n=10, delta=0):
+  g = RandomCircleGraph(size=n)
+  g.generate(max_center=3, p_center=1, p_inner=.5, p_outer=.5,
+             p_inout_st=.5, p_inout_diag=.5, p_cenin=.5)
+  g.set_color(delta=delta)
+  nodes_x, nodes_y = arrange_circles(g.circle_sizes, [1, 2, 3])
+  count, edges_x, edges_y = arrange_circ_graph_edges(g.edges, nodes_x, nodes_y)
+  draw_graph(count, nodes_x, nodes_y, edges_x, edges_y, g.colors,
+             edge_width=2, name_ver_pos=0, name_hor_pos=0,
+             node_radius=20, fontsize=12)
+  plt.show()
+
+
 def draw_graph_transition(scatter, colors, n_days):
   callback = Index(scatter, colors, ind=0, lower=0, upper=n_days)
   ax_prev = plt.axes([0.7, 0.01, 0.1, 0.075])
@@ -65,10 +93,10 @@ def draw_graph_transition(scatter, colors, n_days):
   ax_prev._button = b_prev
 
 
-def check_tree_transition(n=10, root=0, n_days=5):
+def check_tree_transition(n=10, root=0, delta=0, n_days=5):
   g = RandomTree(size=n)
   g.generate()
-  g.set_color(0)
+  g.set_color(delta=delta)
   edges = np.floor(g.edges / 2).astype(int)
   widths = np.zeros(n, dtype=int)
   get_width_at_root(edges, root, widths)
@@ -86,26 +114,11 @@ def check_tree_transition(n=10, root=0, n_days=5):
   plt.show()
 
 
-def check_tree(n=10, root=0):
-  g = RandomTree(size=n)
-  g.generate()
-  g.set_color(0)
-  edges = np.floor(g.edges / 2).astype(int)
-  widths = np.zeros(n, dtype=int)
-  get_width_at_root(edges, root, widths)
-  count, nodes_x, nodes_y, edges_x, edges_y = arrange_tree(
-    edges, widths, root, 0, edge_length=10)
-  draw_graph(count, nodes_x, nodes_y, edges_x, edges_y, g.colors,
-             edge_width=2, name_ver_pos=0, name_hor_pos=0,
-             node_radius=20, fontsize=12)
-  plt.show()
-
-
-def check_circ_graph_transition(n=10, n_days=5):
+def check_circ_graph_transition(n=10, delta=0, n_days=5):
   g = RandomCircleGraph(size=n)
   g.generate(max_center=3, p_center=.8, p_inner=.8, p_outer=.8,
              p_inout_st=.8, p_inout_diag=.8, p_cenin=.8)
-  g.set_color(0)
+  g.set_color(delta=delta)
   colors = np.empty((n_days, n), dtype=int)
   colors[0] = g.colors.copy()
   for i in range(1, n_days):
@@ -120,19 +133,6 @@ def check_circ_graph_transition(n=10, n_days=5):
   plt.show()
 
 
-def check_circ_graph(n=10):
-  g = RandomCircleGraph(size=n)
-  g.generate(max_center=3, p_center=1, p_inner=.5, p_outer=.5,
-             p_inout_st=.5, p_inout_diag=.5, p_cenin=.5)
-  g.set_color(0)
-  nodes_x, nodes_y = arrange_circles(g.circle_sizes, [1, 2, 3])
-  count, edges_x, edges_y = arrange_circ_graph_edges(g.edges, nodes_x, nodes_y)
-  draw_graph(count, nodes_x, nodes_y, edges_x, edges_y, g.colors,
-             edge_width=2, name_ver_pos=0, name_hor_pos=0,
-             node_radius=20, fontsize=12)
-  plt.show()
-
-
 if __name__ == '__main__':
-  check_circ_graph_transition(n=25, n_days=10)
-  # check_tree_transition(n=15, n_days=10)
+  # check_circ_graph_transition(n=25, n_days=10)
+  check_tree_transition(n=15, n_days=10)
