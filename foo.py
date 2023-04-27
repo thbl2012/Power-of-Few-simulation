@@ -66,4 +66,17 @@ def f0(n):
   return np.sum(np.exp(exps))
 
 
+from scipy.stats import binom
+
+
+def compare(n, p):
+  a1 = binom.cdf(np.arange(0, n + 0.5, 0.5), n, p)
+  a2 = binom.cdf(np.arange(0, 2*n + 1, 1), 2*n, p)
+  plt.plot(np.log(a1))
+  plt.plot(np.log(a2))
+  plt.show()
+
+
+if __name__ == '__main__':
+  compare(100, 0.3)
 
