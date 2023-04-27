@@ -3,7 +3,6 @@ import math, sys, time, os, glob
 from datetime import timedelta
 from collections import Counter
 from random_graph import RandomGraph
-import warnings
 
 MAX_DAYS = 100
 CYCLE_ONE = 1
@@ -12,7 +11,7 @@ INCONCLUSIVE = 0
 status_to_text = {
   CYCLE_ONE: 'Cycle one', CYCLE_TWO: 'Cycle_two', INCONCLUSIVE: 'Inconclusive'
 }
-DATA_DIR = 'expected_degree_less_than_1'
+DATA_DIR = 'optimal_power_of_few'
 MAX_DIGITS = 6
 
 
@@ -28,10 +27,10 @@ def print_progress_bar(start_time, n_trials_done, n_trials_total, my_dict, key1,
   sys.stdout.flush()
 
 
-def trial(n, d, c):
+def trial(n, p, c):
   g = RandomGraph(n)
   g.set_color(c)
-  g.generate(d/n)
+  g.generate(p)
   prev_colors = g.colors
   prev_two_colors = g.colors
   for day in range(1, MAX_DAYS + 1):
@@ -45,9 +44,10 @@ def trial(n, d, c):
   return (INCONCLUSIVE, ) + g.count(prev_two_colors) + g.count() + (MAX_DAYS, )
 
 
-def main(n=10000, d=1, c=0, n_trials=1000):
-  print('Proceeding to run n_trials = {} trials on random graph G(n, d/n) '
-        'for n = {}, d = {}.'.format(n_trials, n, d))
+def main(n=10000, f=1, c=1, n_trials=1000):
+  p = f/c**2
+  print('Proceeding to run n_trials = {} trials on random graph G(n, p) '
+        'for n = {}, p = {}/c^2 = {}.'.format(n_trials, n, f, p))
   print('Max days = {}. Advantage c = {}. Starting with {} Reds and {} Blues.'.format(
       MAX_DAYS, c, math.ceil(n / 2 + c), math.floor(n / 2 - c)))
   print()
@@ -57,26 +57,11 @@ def main(n=10000, d=1, c=0, n_trials=1000):
   summary = {CYCLE_ONE: 0, CYCLE_TWO: 0, INCONCLUSIVE: 0}
   start = time.time()
   for i in range(1, n_trials + 1):
-    result = trial(n, d, c)
+    result = trial(n, p, c)
     records.append(result)
     summary[result[0]] += 1
     print_progress_bar(start, i, n_trials, summary, CYCLE_ONE, CYCLE_TWO, INCONCLUSIVE)
   print()
-
-  # print records
-  # print('==================== RESULTS =====================')
-  # print('Status           Last day     Count      Frequency')
-  # print('---------------------------------------------')
-  # records_counter = Counter(records)
-  # for result, count in sorted(records_counter.items()):
-  #   status, _, _, _, _, day = result
-  #   frequency = count / n_trials
-  #   # summary[status] += count
-  #   print(
-  #     '{:<12}      {:<4}         {:<6}      {:.2f}'.format(
-  #       status, day, count, frequency
-  #     )
-  #   )
   print()
   print('============== SUMMARY ==================')
   print('Status           Count     Frequency')
@@ -86,7 +71,7 @@ def main(n=10000, d=1, c=0, n_trials=1000):
     ))
 
   # save records
-  data_subdir = '{}/{}_{}'.format(DATA_DIR, n, str(d).replace('.', 'd'))
+  data_subdir = '{}/{}_{}_{}'.format(DATA_DIR, n, f, c)
   os.makedirs(data_subdir, exist_ok=True)
   print(data_subdir)
   batch_list = [int(fname[- MAX_DIGITS - 4:-4]) for fname in glob.glob(data_subdir + '/*.npy')]
@@ -94,11 +79,11 @@ def main(n=10000, d=1, c=0, n_trials=1000):
   np.save('{}/{:0{}}.npy'.format(data_subdir, first_batch, MAX_DIGITS), records)
 
 
-def foo(d):
-  res = np.load('expected_degree_less_than_1/10000_{}/000000.npy'.format(d))
+def foo(f, c):
+  res = np.load('{}/10000_{}_{}/000000.npy'.format(DATA_DIR, f, c))
   # print('Avg end size: R: {}, B: {}'.format(res[:, 3].mean(), res[:, 4].mean()))
   # print('Avg end day: {}'.format(res[:, 5].mean()))
-  print('d = {}'.format(d))
+  print('f = {}, c = {}'.format(f, c))
   print('Status     Count      Freq      Avg lower    Avg end')
   for i in range(3):
     indices = res[:, 0] == i
@@ -124,9 +109,7 @@ def foo(d):
 
 
 if __name__ == '__main__':
-  # warnings.filterwarnings('ignore')
-  # for d in range(1, 21):
-  #   if d != 5:
-  #     foo(d)
-  for d in range(5, 6):
-    main(n=10000, d=d, c=0, n_trials=500)
+  for f in range(5, 20):
+    for c in range(int(np.floor(1.5  *np.sqrt(f))), int(np.ceil(35*np.sqrt(f)))):
+      main(n=10000, f=f, c=c, n_trials=1000)
+

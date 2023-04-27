@@ -116,7 +116,6 @@ def main(n=10000, d=1, c=0, n_trials=1000):
   batch_list = [int(fname[- MAX_DIGITS - 4:-4]) for fname in glob.glob(data_subdir + '/*.npy')]
   first_batch = max(batch_list) + 1 if batch_list else 0
   np_records = np.array(records)
-  print(np_records.dtype, np_records.shape)
   np.save('{}/{:0{}}.npy'.format(data_subdir, first_batch, MAX_DIGITS), records)
 
 
