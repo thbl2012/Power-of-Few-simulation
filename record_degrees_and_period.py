@@ -29,9 +29,9 @@ def print_progress_bar(start_time, n_trials_done, n_trials_total, my_dict, key1,
   sys.stdout.flush()
 
 
-def trial(n, d, c):
+def trial(n, d, delta):
   g = RandomGraph(n)
-  g.set_color(c)
+  g.set_color(delta)
   g.generate(d/n)
   prev_colors = g.colors
   prev_two_colors = g.colors
@@ -85,11 +85,20 @@ def trial(n, d, c):
           avg_r_prev_deg, avg_b_prev_deg, avg_r_deg, avg_b_deg)
 
 
-def main(n=10000, d=1, c=0, n_trials=1000):
+def main(n=10000, d=1, delta=0, n_trials=1000, save=False):
+  """
+  Runs some trials and print out the number of occurrences for each periodicity
+  :param n: number of vertices
+  :param d: expected degree (= pn)
+  :param delta: initial gap (= |R_0| - |B_0|)
+  :param n_trials: number of trials
+  :param save: boolean. If set to true, the results will be saved in the designated directory
+  DATADIR/[n]_[d]_[delta], where DATADIR is defined at the top
+  """
   print('Proceeding to run n_trials = {} trials on random graph G(n, d/n) '
         'for n = {}, d = {}.'.format(n_trials, n, d))
   print('Max days = {}. Advantage c = {}. Starting with {} Reds and {} Blues.'.format(
-      MAX_DAYS, c, math.ceil(n / 2 + c), math.floor(n / 2 - c)))
+      MAX_DAYS, delta, math.ceil(n / 2 + delta), math.floor(n / 2 - delta)))
   print()
 
   # run n_trials trials
@@ -97,7 +106,7 @@ def main(n=10000, d=1, c=0, n_trials=1000):
   summary = {CYCLE_ONE: 0, CYCLE_TWO: 0, INCONCLUSIVE: 0}
   start = time.time()
   for i in range(1, n_trials + 1):
-    result = trial(n, d, c)
+    result = trial(n, d, delta)
     records.append(result)
     summary[result[0]] += 1
     print_progress_bar(start, i, n_trials, summary, CYCLE_ONE, CYCLE_TWO, INCONCLUSIVE)
@@ -110,17 +119,19 @@ def main(n=10000, d=1, c=0, n_trials=1000):
     ))
 
   # save records
-  data_subdir = '{}/{}_{}'.format(DATA_DIR, n, str(d).replace('.', 'd'))
-  os.makedirs(data_subdir, exist_ok=True)
-  print(data_subdir)
-  batch_list = [int(fname[- MAX_DIGITS - 4:-4]) for fname in glob.glob(data_subdir + '/*.npy')]
-  first_batch = max(batch_list) + 1 if batch_list else 0
-  np_records = np.array(records)
-  np.save('{}/{:0{}}.npy'.format(data_subdir, first_batch, MAX_DIGITS), records)
+  if save:
+    data_subdir = '{}/{}_{}_{}'.format(DATA_DIR, n, str(d).replace('.', 'd'), delta)
+    os.makedirs(data_subdir, exist_ok=True)
+    print('Results saved in {}'.format(data_subdir))
+    batch_list = [int(fname[- MAX_DIGITS - 4:-4]) for fname in glob.glob(data_subdir + '/*.npy')]
+    first_batch = max(batch_list) + 1 if batch_list else 0
+    np_records = np.array(records)
+    np.save('{}/{:0{}}.npy'.format(data_subdir, first_batch, MAX_DIGITS), records)
 
 
+# a function to test the main function. Not really needed anymore
 def foo(d):
-  res = np.load('{}/10000_{}/000000.npy'.format(DATA_DIR, d))
+  res = np.load('{}/10000_{}_{}/000000.npy'.format(DATA_DIR, d, 0))
   print('Avg end size: R: {}, B: {}'.format(res[:, 3].mean(), res[:, 4].mean()))
   print('Avg end day: {}'.format(res[:, 5].mean()))
   print('Status           Count            Avg lower size       Avg end day    '
@@ -143,4 +154,4 @@ def foo(d):
 
 if __name__ == '__main__':
   # foo(1)
-  main(n=10000, d=10, c=0, n_trials=10)
+  main(n=1000, d=10, delta=0, n_trials=10)
